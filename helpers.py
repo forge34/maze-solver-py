@@ -32,11 +32,3 @@ def manhattan_distance(point, goal):
     x1, y1 = point
     x2, y2 = goal
     return abs(x2 - x1) + abs(y2 - y1)
-
-def maze_heuristic(maze, goal):
-    return [
-        [manhattan_distance((c, r), goal) for c in range(len(maze[r]))]
-        for r in range(len(maze))
-    ]
-
-            
