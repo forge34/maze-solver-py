@@ -1,8 +1,9 @@
-from constants import HEIGHT, WIDTH
+from constants import HEIGHT
 from helpers import generate_maze
 from datetime import datetime
 import os
 import random
+import math
 
 default_maze = [
     [1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
@@ -29,10 +30,13 @@ class MazeGenerator:
         self.maze = maze
         self.maze_rows = len(self.maze)
         self.maze_cols = len(self.maze[0])
-        self.CELL_SIZE = min(WIDTH // self.maze_cols, HEIGHT // self.maze_rows)
 
-        self.maze_width = self.maze_cols * self.CELL_SIZE
-        self.maze_height = self.maze_rows * self.CELL_SIZE
+        self.maze_width = HEIGHT
+        self.maze_height = HEIGHT
+        self.CELL_SIZE = min(
+            math.ceil(self.maze_width / self.maze_cols),
+            math.ceil(self.maze_height / self.maze_rows),
+        )
 
     def generate(self, rows, cols):
         self.maze = generate_maze(rows, cols)
@@ -43,10 +47,10 @@ class MazeGenerator:
     def update_props(self):
         self.maze_rows = len(self.maze)
         self.maze_cols = len(self.maze[0])
-        self.CELL_SIZE = min(WIDTH // self.maze_cols, HEIGHT // self.maze_rows)
-
-        self.maze_width = self.maze_cols * self.CELL_SIZE
-        self.maze_height = self.maze_rows * self.CELL_SIZE
+        self.CELL_SIZE = min(
+            math.ceil(self.maze_width / self.maze_cols),
+            math.ceil(self.maze_height / self.maze_rows),
+        )
 
     def export_maze(self):
         os.makedirs("mazes", exist_ok=True)
@@ -57,7 +61,7 @@ class MazeGenerator:
         with open(path, "w") as f:
             f.write(str(self.maze))
 
-    def add_loops(self,maze, chance=0.15):
+    def add_loops(self, maze, chance=0.15):
         rows, cols = len(maze), len(maze[0])
         for i in range(1, rows - 1):
             for j in range(1, cols - 1):

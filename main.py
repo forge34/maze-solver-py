@@ -5,8 +5,6 @@ from constants import *
 
 pygame.init()
 
-
-
 display = pygame.display.set_mode((WIDTH , HEIGHT))
 
 game = App(display)

@@ -1,4 +1,4 @@
-WIDTH = 800 
+WIDTH = 900
 HEIGHT = 600
 
 start = (0, 0)
