@@ -6,9 +6,7 @@ import pygame_gui
 from maze_solver import MazeSolver
 from maze_generator import MazeGenerator
 
-
 goal = (13, 13)
-
 
 class App:
     def __init__(self, display):
@@ -59,11 +57,18 @@ class App:
             text="Generate a new maze",
             manager=self.manager,
         )
+        
 
         slider = UIHorizontalSlider(
             relative_rect=pygame.Rect(((WIDTH / 7) * 6 - 75, 250), (180, 50)),
             start_value=15,
             value_range=(8, 100),
+            manager=self.manager,
+        )
+        
+        export_btn = UIButton(
+            relative_rect=pygame.Rect(((WIDTH / 7) * 6 - 50, 350), (100, 50)),
+            text="Export maze",
             manager=self.manager,
         )
 
@@ -85,6 +90,9 @@ class App:
                             slider.get_current_value(), slider.get_current_value()
                         )
                         self.reset()
+                    elif ev.ui_element == export_btn:
+                        self.maze_generator.export_maze()
+                        
                 if ev.type == pygame_gui.UI_HORIZONTAL_SLIDER_MOVED:
                     if ev.ui_element == slider:
                         self.text = self.font.render(
