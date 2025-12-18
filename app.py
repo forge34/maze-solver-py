@@ -4,35 +4,10 @@ from pygame_gui.elements import UIButton
 from pygame_gui import UIManager
 import pygame_gui
 from maze_solver import MazeSolver
-from helpers import generate_maze
+from maze_generator import MazeGenerator
 
-maze = [
-    [1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-    [1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1],
-    [1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 1, 0, 1, 0, 1, 1],
-    [1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 1, 0, 1, 1],
-    [1, 0, 1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1],
-    [1, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 1],
-    [1, 0, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1],
-    [1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 1],
-    [1, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 1, 1],
-    [1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 1, 0, 1, 1],
-    [1, 0, 1, 0, 1, 0, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1],
-    [1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1],
-    [1, 0, 1, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-    [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-    [1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 0, 1],
-    [1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1],
-]
 
-# maze = generate_maze(25,25)
-maze_rows = len(maze)
-maze_cols = len(maze[0])
-CELL_SIZE = min(WIDTH // maze_cols, HEIGHT // maze_rows)
-
-maze_width = maze_cols * CELL_SIZE
-maze_height = maze_rows * CELL_SIZE
-goal = (14,14)
+goal = (13,13)
 
 class App:
     def __init__(self, display):
@@ -45,7 +20,9 @@ class App:
         self.animating = False
         self.animating_shortest = False
         self.found_goal = False
-        self.solver = MazeSolver(maze , start,goal)
+        self.maze_generator = MazeGenerator()
+        self.maze = self.maze_generator.maze
+        self.solver = MazeSolver(self.maze , start,goal)
         self.generator = self.solver.solve()
         self.manager = UIManager((WIDTH, HEIGHT))
 
@@ -72,6 +49,11 @@ class App:
             text="A*",
             manager=self.manager,
         )
+        generate_maze_btn = UIButton(
+            relative_rect=pygame.Rect(((WIDTH / 7)* 6 - 75, 200), (180, 50)),
+            text="Generate a new maze",
+            manager=self.manager,
+        )
         
         self.is_running = True
 
@@ -86,6 +68,9 @@ class App:
                     if ev.ui_element == bfs_button:
                         self.reset()
                         self.animating = True
+                    elif ev.ui_element == generate_maze_btn:
+                        self.reset()
+                        self.maze = self.maze_generator.generate(15,15)
                         
                 self.manager.process_events(ev)
                 
@@ -122,46 +107,46 @@ class App:
             pygame.display.flip()
 
     def draw_maze(self):
-        for r in range(len(maze)):
-            for c in range(len(maze[r])):
-                x = c * CELL_SIZE 
-                y = r * CELL_SIZE 
+        for r in range(len(self.maze)):
+            for c in range(len(self.maze[r])):
+                x = c * self.maze_generator.CELL_SIZE 
+                y = r * self.maze_generator.CELL_SIZE 
 
                 if (r, c) == goal:
                     pygame.draw.rect(
-                        self.window, goal_color, (x, y, CELL_SIZE, CELL_SIZE)
+                        self.window, goal_color, (x, y, self.maze_generator.CELL_SIZE, self.maze_generator.CELL_SIZE)
                     )
                 elif (r, c) == start:
                     pygame.draw.rect(
-                        self.window, start_color, (x, y, CELL_SIZE, CELL_SIZE)
+                        self.window, start_color, (x, y, self.maze_generator.CELL_SIZE, self.maze_generator.CELL_SIZE)
                     )
-                elif maze[r][c] == 1:
+                elif self.maze[r][c] == 1:
                     pygame.draw.rect(
-                        self.window, wall_color, (x, y, CELL_SIZE, CELL_SIZE)
+                        self.window, wall_color, (x, y, self.maze_generator.CELL_SIZE, self.maze_generator.CELL_SIZE)
                     )
                     pygame.draw.rect(
                         self.window,
                         border_color,
-                        (x, y, CELL_SIZE, CELL_SIZE),
+                        (x, y, self.maze_generator.CELL_SIZE, self.maze_generator.CELL_SIZE),
                         border_width,
                     )
                 else:
-                    pygame.draw.rect(self.window, white, (x, y, CELL_SIZE, CELL_SIZE))
+                    pygame.draw.rect(self.window, white, (x, y, self.maze_generator.CELL_SIZE, self.maze_generator.CELL_SIZE))
 
     def draw_explored(self):
         for r, c in self.explored:
             if (r, c) != start and (r, c) != goal:
-                x = c * CELL_SIZE 
-                y = r * CELL_SIZE 
-                pygame.draw.rect(self.window, explored_color, (x, y, CELL_SIZE, CELL_SIZE))
+                x = c * self.maze_generator.CELL_SIZE 
+                y = r * self.maze_generator.CELL_SIZE 
+                pygame.draw.rect(self.window, explored_color, (x, y, self.maze_generator.CELL_SIZE, self.maze_generator.CELL_SIZE))
     
     def draw_path(self):
         for i in range(self.path_index):
             r, c = self.shortest_path[i]
             if (r, c) != start and (r, c) != goal:
-                x = c * CELL_SIZE 
-                y = r * CELL_SIZE 
-                pygame.draw.rect(self.window, path_color, (x, y, CELL_SIZE, CELL_SIZE))
+                x = c * self.maze_generator.CELL_SIZE 
+                y = r * self.maze_generator.CELL_SIZE 
+                pygame.draw.rect(self.window, path_color, (x, y, self.maze_generator.CELL_SIZE, self.maze_generator.CELL_SIZE))
     
     def reset(self):
         self.found_goal = False
@@ -170,7 +155,7 @@ class App:
         self.path_index = 0
         self.explored = []
         self.shortest_path = []
-        self.solver = MazeSolver(maze,start,goal)
+        self.solver = MazeSolver(self.maze,start,goal)
         self.generator = self.solver.solve()
         
     def quit(self):
