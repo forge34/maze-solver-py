@@ -1,5 +1,17 @@
 from collections import deque
 
+def is_wall(grid,row,col):
+    return grid[row][col] == 1
+
+def is_valid(grid,row,col):
+    return (0 <= row < len(grid)) and (0 <= col < len(grid[0]))
+
+def is_goal(point,goal):
+    return point[0] == goal[0] and point[1] == goal[1]
+
+def get_directions():
+    return [(0, 1), (1, 0), (0, -1), (-1, 0)]
+
 class MazeSolver:
     def __init__(self,maze,start,goal,algorithm = "BFS"):
         self.maze = maze
@@ -19,16 +31,15 @@ class MazeSolver:
             
             yield (row, col), path, False
             
-            if (row, col) == self.goal:
+            if is_goal((row,col) , self.goal):
                 yield (row, col), path, True
                 return
             
-            for dr, dc in [(0, 1), (1, 0), (0, -1), (-1, 0)]:
+            for dr, dc in get_directions():
                 new_row, new_col = row + dr, col + dc
                 
-                if (0 <= new_row < len(self.maze) and 
-                    0 <= new_col < len(self.maze[0]) and
-                    self.maze[new_row][new_col] == 0 and
+                if (is_valid(self.maze , new_row,new_col) and
+                    not is_wall(self.maze ,new_row,new_col) and
                     (new_row, new_col) not in visited):
                     
                     visited.add((new_row, new_col))
