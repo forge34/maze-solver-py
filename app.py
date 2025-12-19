@@ -5,8 +5,10 @@ from pygame_gui import UIManager
 import pygame_gui
 from maze_solver import MazeSolver
 from maze_generator import MazeGenerator
+import random
 
 goal = (13, 13)
+
 
 class App:
     def __init__(self, display):
@@ -21,7 +23,9 @@ class App:
         self.found_goal = False
         self.maze_generator = MazeGenerator()
         self.maze = self.maze_generator.maze
-        self.solver = MazeSolver(self.maze, start, goal)
+        self.valid_cells = [(r, c) for r in range(len(self.maze)) for c in range(len(self.maze[0])) if self.maze[r][c] == 0]
+        self.goal = random.choice(self.valid_cells)
+        self.solver = MazeSolver(self.maze, start, self.goal)
         self.generator = self.solver.solve()
         self.manager = UIManager((WIDTH, HEIGHT))
 
@@ -57,7 +61,6 @@ class App:
             text="Generate a new maze",
             manager=self.manager,
         )
-        
 
         slider = UIHorizontalSlider(
             relative_rect=pygame.Rect(((WIDTH / 7) * 6 - 75, 250), (180, 50)),
@@ -65,10 +68,16 @@ class App:
             value_range=(8, 100),
             manager=self.manager,
         )
-        
+
         export_btn = UIButton(
             relative_rect=pygame.Rect(((WIDTH / 7) * 6 - 50, 350), (100, 50)),
             text="Export maze",
+            manager=self.manager,
+        )
+
+        change_goal_btn = UIButton(
+            relative_rect=pygame.Rect(((WIDTH / 7) * 6 - 50, 400), (170, 50)),
+            text="Change goal (random)",
             manager=self.manager,
         )
 
@@ -83,16 +92,24 @@ class App:
 
                 if ev.type == pygame_gui.UI_BUTTON_PRESSED:
                     if ev.ui_element == bfs_button:
-                        self.reset()
+                        self.reset("BFS")
                         self.animating = True
+                    elif ev.ui_element == astar_button:
+                        self.reset("A*")
+                        self.animating = True
+                    elif ev.ui_element == change_goal_btn:
+                        self.goal = random.choice(self.valid_cells)
+                        self.reset()
                     elif ev.ui_element == generate_maze_btn:
                         self.maze = self.maze_generator.generate(
                             slider.get_current_value(), slider.get_current_value()
                         )
+                        self.valid_cells = [(r, c) for r in range(len(self.maze)) for c in range(len(self.maze[0])) if self.maze[r][c] == 0]
+                        self.goal = random.choice(self.valid_cells)
                         self.reset()
                     elif ev.ui_element == export_btn:
                         self.maze_generator.export_maze()
-                        
+
                 if ev.type == pygame_gui.UI_HORIZONTAL_SLIDER_MOVED:
                     if ev.ui_element == slider:
                         self.text = self.font.render(
@@ -140,7 +157,7 @@ class App:
                 x = c * self.maze_generator.CELL_SIZE
                 y = r * self.maze_generator.CELL_SIZE
 
-                if (r, c) == goal:
+                if (r, c) == self.goal:
                     pygame.draw.rect(
                         self.window,
                         goal_color,
@@ -198,7 +215,7 @@ class App:
 
     def draw_explored(self):
         for r, c in self.explored:
-            if (r, c) != start and (r, c) != goal:
+            if (r, c) != start and (r, c) != self.goal:
                 x = c * self.maze_generator.CELL_SIZE
                 y = r * self.maze_generator.CELL_SIZE
                 pygame.draw.rect(
@@ -215,7 +232,7 @@ class App:
     def draw_path(self):
         for i in range(self.path_index):
             r, c = self.shortest_path[i]
-            if (r, c) != start and (r, c) != goal:
+            if (r, c) != start and (r, c) != self.goal:
                 x = c * self.maze_generator.CELL_SIZE
                 y = r * self.maze_generator.CELL_SIZE
                 pygame.draw.rect(
@@ -229,14 +246,14 @@ class App:
                     ),
                 )
 
-    def reset(self):
+    def reset(self, algorithm="BFS"):
         self.found_goal = False
         self.animating = False
         self.path_delay = 0
         self.path_index = 0
         self.explored = []
         self.shortest_path = []
-        self.solver = MazeSolver(self.maze, start, goal)
+        self.solver = MazeSolver(self.maze, start, self.goal, algorithm)
         self.generator = self.solver.solve()
 
     def quit(self):
