@@ -1,4 +1,6 @@
 from collections import deque
+from helpers import manhattan_distance
+import heapq
 
 def is_wall(grid,row,col):
     return grid[row][col] == 1
@@ -46,7 +48,39 @@ class MazeSolver:
                     queue.append(((new_row, new_col), path + [(new_row, new_col)]))
     
     def a_star(self):
-        pass
+        start_node = (self.start, [self.start])
+        priority_queue = [(0 + manhattan_distance(self.start, self.goal), 0, start_node)]
+        
+        visited = {self.start: 0}
+        
+        while priority_queue:
+            f_score, g_score, (current_pos, path) = heapq.heappop(priority_queue)
+            row, col = current_pos
+            
+            yield (row, col), path, False
+            
+            if g_score > visited.get(current_pos, float('inf')):
+                continue
+            
+            if is_goal(current_pos, self.goal):
+                yield (row, col), path, True
+                return
+            
+            for dr, dc in get_directions():
+                new_row, new_col = row + dr, col + dc
+                neighbor = (new_row, new_col)
+                new_g_score = g_score + 1 
+                
+                if (is_valid(self.maze, new_row, new_col) and 
+                    not is_wall(self.maze, new_row, new_col)):
+                    
+                    if neighbor not in visited or new_g_score < visited[neighbor]:
+                        visited[neighbor] = new_g_score
+                        f_score = new_g_score + manhattan_distance(neighbor, self.goal)
+                        
+                        new_path = path + [neighbor]
+                        heapq.heappush(priority_queue, (f_score, new_g_score, (neighbor, new_path)))
+        
     
     def solve(self):
         if self.algorithm == "BFS" :
