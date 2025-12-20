@@ -31,8 +31,8 @@ class MazeGenerator:
         self.maze_rows = len(self.maze)
         self.maze_cols = len(self.maze[0])
 
-        self.maze_width = HEIGHT
-        self.maze_height = HEIGHT
+        self.maze_width = HEIGHT - 25
+        self.maze_height = HEIGHT - 25
         self.CELL_SIZE = min(
             math.ceil(self.maze_width / self.maze_cols),
             math.ceil(self.maze_height / self.maze_rows),
@@ -52,7 +52,7 @@ class MazeGenerator:
             math.ceil(self.maze_height / self.maze_rows),
         )
 
-    def export_maze(self):
+    def export_maze(self,goal):
         os.makedirs("mazes", exist_ok=True)
 
         filename = f"maze_{datetime.now().strftime('%Y%m%d_%H%M%S')}.txt"
@@ -60,6 +60,7 @@ class MazeGenerator:
 
         with open(path, "w") as f:
             f.write(str(self.maze))
+            f.write(f"Goal : ({goal[0]},{goal[1]})")
 
     def add_loops(self, maze, chance=0.15):
         rows, cols = len(maze), len(maze[0])

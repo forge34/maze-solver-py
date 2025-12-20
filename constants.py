@@ -1,5 +1,5 @@
-WIDTH = 900
-HEIGHT = 600
+WIDTH = 1200
+HEIGHT = 620
 
 start = (0, 0)
 border_color = (107, 107, 107)

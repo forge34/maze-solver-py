@@ -7,8 +7,7 @@ from maze_solver import MazeSolver
 from maze_generator import MazeGenerator
 import random
 
-goal = (13, 13)
-
+goal = (15,14)
 
 class App:
     def __init__(self, display):
@@ -24,7 +23,7 @@ class App:
         self.maze_generator = MazeGenerator()
         self.maze = self.maze_generator.maze
         self.valid_cells = [(r, c) for r in range(len(self.maze)) for c in range(len(self.maze[0])) if self.maze[r][c] == 0]
-        self.goal = random.choice(self.valid_cells)
+        self.goal = goal
         self.solver = MazeSolver(self.maze, start, self.goal)
         self.generator = self.solver.solve()
         self.manager = UIManager((WIDTH, HEIGHT))
@@ -108,7 +107,7 @@ class App:
                         self.goal = random.choice(self.valid_cells)
                         self.reset()
                     elif ev.ui_element == export_btn:
-                        self.maze_generator.export_maze()
+                        self.maze_generator.export_maze(self.goal)
 
                 if ev.type == pygame_gui.UI_HORIZONTAL_SLIDER_MOVED:
                     if ev.ui_element == slider:
