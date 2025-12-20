@@ -68,14 +68,20 @@ class App:
             manager=self.manager,
         )
 
-        export_btn = UIButton(
+        export_maze_btn = UIButton(
             relative_rect=pygame.Rect(((WIDTH / 7) * 6 - 50, 350), (100, 50)),
             text="Export maze",
             manager=self.manager,
         )
+        
+        export_data_btn = UIButton(
+            relative_rect=pygame.Rect(((WIDTH / 7) * 6 - 50, 400), (150, 50)),
+            text="Export analsys",
+            manager=self.manager,
+        )
 
         change_goal_btn = UIButton(
-            relative_rect=pygame.Rect(((WIDTH / 7) * 6 - 50, 400), (170, 50)),
+            relative_rect=pygame.Rect(((WIDTH / 7) * 6 - 50, 450), (170, 50)),
             text="Change goal (random)",
             manager=self.manager,
         )
@@ -106,8 +112,10 @@ class App:
                         self.valid_cells = [(r, c) for r in range(len(self.maze)) for c in range(len(self.maze[0])) if self.maze[r][c] == 0]
                         self.goal = random.choice(self.valid_cells)
                         self.reset()
-                    elif ev.ui_element == export_btn:
+                    elif ev.ui_element == export_maze_btn:
                         self.maze_generator.export_maze(self.goal)
+                    elif ev.ui_element == export_data_btn:
+                        self.solver.export_analysis()
 
                 if ev.type == pygame_gui.UI_HORIZONTAL_SLIDER_MOVED:
                     if ev.ui_element == slider:
