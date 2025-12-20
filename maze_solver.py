@@ -36,6 +36,7 @@ class MazeSolver:
     def bfs(self):
         queue = deque([(self.start, [self.start])])
         visited = {self.start}
+        explored = [self.start]
         time_start = time.time()
         while queue:
             (row, col), path = queue.popleft()
@@ -43,7 +44,7 @@ class MazeSolver:
             yield (row, col), path, False
 
             if is_goal((row, col), self.goal):
-                self.explored = visited
+                self.explored = explored
                 self.total_time = time.time() - time_start
                 self.path = path
                 yield (row, col), path, True
@@ -59,6 +60,7 @@ class MazeSolver:
                 ):
 
                     visited.add((new_row, new_col))
+                    explored.append((new_row,new_col))
                     queue.append(((new_row, new_col), path + [(new_row, new_col)]))
 
     def a_star(self):
@@ -68,6 +70,7 @@ class MazeSolver:
         ]
 
         visited = {self.start: 0}
+        explored = [self.start]
         time_start = time.time()
 
         while priority_queue:
@@ -98,6 +101,7 @@ class MazeSolver:
                     if neighbor not in visited or new_g_score < visited[neighbor]:
                         visited[neighbor] = new_g_score
                         f_score = new_g_score + manhattan_distance(neighbor, self.goal)
+                        explored.append((new_row,new_col))
 
                         new_path = path + [neighbor]
                         heapq.heappush(
