@@ -154,6 +154,7 @@ class MazeSolver:
             "shortest_path_count" : shortest_count,
             "explored_nodes_count" : explored_count,
             "total_time" : search_time,
+            "goal" : list(self.goal),
             "maze" : self.maze,
             "shortest_path" : [list(t) for t in self.path],
             "explored_nodes" : [list(t) for t in self.explored],

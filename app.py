@@ -6,6 +6,8 @@ import pygame_gui
 from maze_solver import MazeSolver
 from maze_generator import MazeGenerator
 import random
+from datetime import datetime
+import os
 
 goal = (15,14)
 
@@ -85,6 +87,12 @@ class App:
             text="Change goal (random)",
             manager=self.manager,
         )
+        
+        export_image_btn = UIButton(
+            relative_rect=pygame.Rect(((WIDTH / 7) * 6 - 50, 500), (100, 50)),
+            text="Export image",
+            manager=self.manager,
+        )
 
         self.is_running = True
 
@@ -99,7 +107,9 @@ class App:
                     if ev.ui_element == bfs_button:
                         self.reset("BFS")
                         self.animating = True
-                    if ev.ui_element == dfs_button:
+                    elif ev.ui_element == export_image_btn:
+                        self.save_maze_image()
+                    elif ev.ui_element == dfs_button:
                         self.reset("DFS")
                         self.animating = True
                     elif ev.ui_element == astar_button:
@@ -266,6 +276,22 @@ class App:
         self.solver = MazeSolver(self.maze, start, self.goal, algorithm)
         self.generator = self.solver.solve()
 
+    def save_maze_image(self):
+        os.makedirs("images",exist_ok=True)
+        size = HEIGHT
+        rect = pygame.Rect(0,0,size,size)
+        
+        subsurface = self.window.subsurface(rect)
+        new_width = rect.width * 3
+        new_height = rect.height * 3
+        scaled_surface = pygame.transform.scale(subsurface, (new_width, new_height))
+        maze_size = len(self.maze)
+        filename = (
+            f"{self.solver.algorithm}_{maze_size}x{maze_size}_"
+            f"{datetime.now().strftime('%Y%m%d_%H%M%S')}.png"
+        )
+        path = os.path.join("images",filename)
+        pygame.image.save(scaled_surface, path)
     def quit(self):
         pygame.quit()
         quit()
