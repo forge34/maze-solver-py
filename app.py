@@ -99,6 +99,9 @@ class App:
                     if ev.ui_element == bfs_button:
                         self.reset("BFS")
                         self.animating = True
+                    if ev.ui_element == dfs_button:
+                        self.reset("DFS")
+                        self.animating = True
                     elif ev.ui_element == astar_button:
                         self.reset("A*")
                         self.animating = True

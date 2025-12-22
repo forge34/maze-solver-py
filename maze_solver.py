@@ -31,8 +31,38 @@ class MazeSolver:
         self.start = start
         self.goal = goal
         self.total_time = 0
-        pass
 
+
+    def dfs(self):
+        visited = {self.start}
+        explored = [self.start]
+        time_start = time.time()
+        stack = [(self.start , [self.start])]
+        
+        while stack:
+            (row,col) ,path = stack.pop()
+            
+            yield (row,col) ,path , False
+            
+            if is_goal((row, col), self.goal):
+                self.explored = explored
+                self.total_time = time.time() - time_start
+                self.path = path
+                yield (row, col), path, True
+                return
+            
+            for dr, dc in get_directions():
+                new_row, new_col = row + dr, col + dc
+
+                if (
+                    is_valid(self.maze, new_row, new_col)
+                    and not is_wall(self.maze, new_row, new_col)
+                    and (new_row, new_col) not in visited
+                ):
+
+                    visited.add((new_row, new_col))
+                    explored.append((new_row,new_col))
+                    stack.append(((new_row, new_col), path + [(new_row, new_col)]))
     def bfs(self):
         queue = deque([(self.start, [self.start])])
         visited = {self.start}
@@ -178,3 +208,5 @@ Shortest path Nodes:
             return self.bfs()
         elif self.algorithm == "A*":
             return self.a_star()
+        elif self.algorithm == "DFS":
+            return self.dfs()
