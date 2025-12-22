@@ -115,7 +115,7 @@ class App:
                     elif ev.ui_element == export_maze_btn:
                         self.maze_generator.export_maze(self.goal)
                     elif ev.ui_element == export_data_btn:
-                        self.solver.export_analysis()
+                        self.solver.export_json()
 
                 if ev.type == pygame_gui.UI_HORIZONTAL_SLIDER_MOVED:
                     if ev.ui_element == slider:

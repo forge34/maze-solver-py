@@ -4,7 +4,7 @@ from datetime import datetime
 import os
 import heapq
 import time
-
+import json
 
 def is_wall(grid, row, col):
     return grid[row][col] == 1
@@ -108,6 +108,33 @@ class MazeSolver:
                             priority_queue, (f_score, new_g_score, (neighbor, new_path))
                         )
 
+    def export_json(self):
+        os.makedirs("json",exist_ok=True)
+        size = len(self.maze)
+        search_time = float("%0.2f" % (self.total_time))
+        explored_count = len(self.explored)
+        shortest_count = len(self.path)
+        filename = (
+            f"{self.algorithm}_{size}x{size}_"
+            f"{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
+        )
+        
+        content = {
+            "algorithm" : self.algorithm,
+            "shortest_path_count" : shortest_count,
+            "explored_nodes_count" : explored_count,
+            "total_time" : search_time,
+            "maze" : self.maze,
+            "shortest_path" : [list(t) for t in self.path],
+            "explored_nodes" : [list(t) for t in self.explored],
+            
+        }
+        
+        path = os.path.join("json",filename)
+        
+        with open(path,"w") as f:
+            json.dump(content,f,ensure_ascii=False,indent=4,separators=(",", ": "))
+        
     def export_analysis(self):
 
         os.makedirs("analysis", exist_ok=True)
